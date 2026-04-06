@@ -1,0 +1,63 @@
+# ─── EDU-PUBLISH Widget Configuration ───
+# Single source of truth for all widget display toggles and parameters.
+
+# === Module-Level Toggles ===
+modules:
+  dashboard: true
+  right_sidebar: true
+  search: true
+  view_counts: false
+  rss_entry: true
+  pwa_install: true
+  stats_chart: true
+  footer_branding: true
+  update_health: false
+
+# === Widget Parameters ===
+widgets:
+  calendar:
+    enabled: true
+    title: "日期筛选"
+    default_expanded: true
+
+  search:
+    placeholder: "搜索通知标题、内容…"
+    show_hit_count: true
+
+  dashboard:
+    title: "数据看板"
+    visible_cards:
+      - total_notices
+      - today_notices
+      - active_events
+      - subscription_count
+
+  ai_summary:
+    enabled: true
+    title: "今日摘要"
+    empty_text: "暂无今日摘要"
+    default_expanded: true
+
+  time_filter:
+    default_timed_only: false
+    default_hide_expired: false
+
+  tag_stats:
+    max_display: 20
+    default_expanded_count: 10
+
+  view_counts:
+    enabled: false
+    label: "阅读量"
+
+  rss_entry:
+    enabled: true
+    label: "RSS 订阅"
+
+  pwa_install:
+    enabled: true
+    label: "安装应用"
+    prompt_text: "将本站添加到主屏幕"
+
+  palette_switcher:
+    enabled: true

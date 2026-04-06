@@ -1,0 +1,124 @@
+name: Build and Deploy Test
+
+on:
+  push:
+    branches:
+      - test
+    paths:
+      - "content/**"
+      - "worklog/**"
+      - "scripts/**"
+      - "config/**"
+      - "public/**"
+      - "src/**"
+      - "components/**"
+      - "api/**"
+      - "functions/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "vite.config.*"
+      - "tsconfig*.json"
+      - "vercel.json"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-static-site
+  cancel-in-progress: true
+
+jobs:
+  deploy-pages:
+    name: Deploy test branch to Cloudflare Pages
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      NODE_VERSION: "22"
+      CLOUDFLARE_PROJECT_NAME: ${{ secrets.CLOUDFLARE_PROJECT_NAME }}
+      SITE_URL: ${{ secrets.CLOUDFLARE_PAGES_TEST_URL }}
+      ATTACHMENT_R2_THRESHOLD_MB: ${{ vars.ATTACHMENT_R2_THRESHOLD_MB != '' && vars.ATTACHMENT_R2_THRESHOLD_MB || '20' }}
+      R2_PUBLIC_BASE_URL: ${{ secrets.R2_PUBLIC_BASE_URL }}
+      R2_BUCKET: ${{ secrets.R2_BUCKET }}
+      R2_S3_ENDPOINT: ${{ secrets.R2_S3_ENDPOINT }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Validate Cloudflare secrets
+        run: |
+          test -n "$CLOUDFLARE_PROJECT_NAME" || (echo "Missing secret: CLOUDFLARE_PROJECT_NAME" && exit 1)
+          test -n "${{ secrets.CLOUDFLARE_API_TOKEN }}" || (echo "Missing secret: CLOUDFLARE_API_TOKEN" && exit 1)
+          test -n "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" || (echo "Missing secret: CLOUDFLARE_ACCOUNT_ID" && exit 1)
+          test -n "${{ secrets.CLOUDFLARE_PAGES_TEST_URL }}" || (echo "Missing secret: CLOUDFLARE_PAGES_TEST_URL" && exit 1)
+
+      - name: Restore previous content snapshot from test preview
+        run: |
+          PAGES_URL="${{ secrets.CLOUDFLARE_PAGES_TEST_URL }}"
+          mkdir -p public/generated
+          SNAPSHOT_URL="$PAGES_URL/generated/content-data.json"
+          TMP_FILE="$(mktemp)"
+          chmod 600 "$TMP_FILE"
+          trap "rm -f '$TMP_FILE'" EXIT
+
+          if curl -fsSL -H 'Cache-Control: no-cache' "$SNAPSHOT_URL" -o "$TMP_FILE"; then
+            if node -e "const fs=require('node:fs');const f=process.argv[1];const data=JSON.parse(fs.readFileSync(f,'utf8'));const n=Number(data?.totalNotices ?? (Array.isArray(data?.notices)?data.notices.length:NaN));if(!Number.isFinite(n)){process.exit(2)};console.log('Restored previous notices:',n);" "$TMP_FILE"; then
+              mv "$TMP_FILE" public/generated/content-data.json
+            else
+              echo "::warning::Downloaded snapshot is not valid content-data.json, building from scratch"
+              rm -f "$TMP_FILE"
+            fi
+          else
+            echo "::warning::No previous content snapshot found on test preview, building from scratch"
+            rm -f "$TMP_FILE"
+          fi
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Upload oversized attachments to R2
+        run: pnpm run upload:r2:large-attachments
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Build dist
+        env:
+          ATTACHMENT_R2_THRESHOLD_MB: ${{ env.ATTACHMENT_R2_THRESHOLD_MB }}
+          R2_PUBLIC_BASE_URL: ${{ env.R2_PUBLIC_BASE_URL }}
+        run: pnpm run build
+
+
+      - name: Sync all remaining media to R2 (Fallback for 20k limits)
+        if: ${{ env.R2_BUCKET != '' }}
+        run: node scripts/sync-media-to-r2.mjs
+
+      - name: Verify build artifacts
+        run: |
+          test -f dist/index.html || (echo "dist/index.html missing" && exit 1)
+          test -s dist/index.html || (echo "dist/index.html is empty" && exit 1)
+
+      - name: Prepare SPA fallback
+        run: |
+          cp dist/index.html dist/404.html
+          if [ ! -f dist/_redirects ]; then
+            echo "/* /index.html 200" > dist/_redirects
+          fi
+
+      - name: Deploy dist to Cloudflare Pages test branch
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          command: pages deploy dist --project-name=${{ env.CLOUDFLARE_PROJECT_NAME }} --branch=test

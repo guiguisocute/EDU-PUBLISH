@@ -1,0 +1,16 @@
+/robots.txt /robots.txt 200
+/manifest.json /manifest.json 200
+/sw.js /sw.js 200
+/icon-192.png /icon-192.png 200
+/icon-512.png /icon-512.png 200
+/icon.ico /icon.ico 200
+/icon.png /icon.png 200
+/rss.xml /rss.xml 200
+/rss/* /rss/:splat 200
+/generated/* /generated/:splat 200
+/assets/* /assets/:splat 200
+/img/* /img/:splat 200
+/covers/* /covers/:splat 200
+/attachments/* /attachments/:splat 200
+/api/* /api/:splat 200
+/* /index.html 200

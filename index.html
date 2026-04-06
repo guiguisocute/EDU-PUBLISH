@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/img/logo-light.svg" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <meta name="theme-color" content="{{THEME_COLOR}}" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="{{SITE_SHORT_NAME}}" />
+  <link rel="alternate" type="application/rss+xml" title="{{SITE_NAME}} 全站 RSS" href="/rss.xml" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cloud.umami.is; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https:;">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="{{SITE_DESCRIPTION}}" />
+  <meta name="keywords" content="{{SEO_KEYWORDS}}" />
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="9da13b54-da7b-4db9-a91c-59d11ccbb995"></script>
+  <title>{{SITE_NAME}}</title>
+  <!-- Tailwind CSS injected via build process now -->
+  <style>
+    /* Simple dark mode detection & initial loader to prevent white flash before Tailwind loads */
+    body {
+      margin: 0;
+      background-color: hsl(0 0% 99%);
+      color: hsl(222 47% 11%);
+    }
+
+    html.dark body {
+      background-color: hsl(220 10% 11%);
+      color: hsl(0 0% 92%);
+    }
+
+    #initial-loader {
+      display: flex;
+      min-height: 100dvh;
+      align-items: center;
+      justify-content: center;
+      animation: fadein 0.3s ease-in;
+    }
+
+    .loader-content {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: hsl(215 16% 47%);
+      font-family: 'Noto Sans SC', ui-sans-serif, system-ui, sans-serif;
+    }
+
+    html.dark .loader-content {
+      color: hsl(0 0% 66%);
+    }
+
+    .loader-spinner {
+      height: 1rem;
+      width: 1rem;
+      border-radius: 9999px;
+      border: 2px solid hsl(var(--primary));
+      border-top-color: transparent;
+      animation: spin 1s linear infinite;
+    }
+
+    html.dark .loader-spinner {
+      border-color: hsl(var(--primary));
+      border-top-color: transparent;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes fadein {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="/generated/palette.css" />
+  <script>
+    (function () {
+      try {
+        var localTheme = localStorage.getItem('theme');
+        var sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var useDark = localTheme === 'dark' || (!localTheme && sysDark);
+        if (useDark) {
+          document.documentElement.classList.add('dark');
+        }
+
+        var themeMeta = document.querySelector('meta[name="theme-color"]');
+        if (themeMeta) {
+          themeMeta.setAttribute('content', useDark ? '#191b1f' : '#fafafa');
+        }
+
+        var appleStatusMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+        if (appleStatusMeta) {
+          appleStatusMeta.setAttribute('content', useDark ? 'black-translucent' : 'default');
+        }
+      } catch (e) { }
+    })();
+  </script>
+</head>
+
+<body class="antialiased h-[100dvh] overflow-hidden transition-colors duration-300">
+  <div id="root" class="h-full">
+    <div id="initial-loader">
+      <div class="loader-content">
+        <div class="loader-spinner"></div>
+        <span>载入中</span>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/index.tsx"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,44 @@
+# ─── EDU-PUBLISH Site Configuration ───
+# This is the single source of truth for all site-level branding.
+# Change these values to customize the site for your university.
+
+# === Basic Info ===
+site_name: "EDU Publish"
+site_short_name: "EDU Publish"
+site_description: "高校通知聚合站"
+site_url: "https://example.edu.cn"
+default_locale: "zh-CN"
+
+# === Organization ===
+organization_name: "示例大学"
+organization_type: "university"
+organization_unit_label: "单位"
+
+# === Brand Assets ===
+logo_light: "/img/logo-light.svg"
+logo_dark: "/img/logo-dark.svg"
+favicon: "/img/logo-light.svg"
+default_cover: "/img/default-cover.svg"
+
+# === Footer ===
+footer:
+  copyright: "© 2025 示例大学"
+  links:
+    - label: "GitHub"
+      url: "https://github.com/your-org/edu-publish"
+    - label: "反馈"
+      url: "https://github.com/your-org/edu-publish/issues"
+
+# === SEO ===
+seo:
+  title_template: "{page} - {site_name}"
+  default_keywords:
+    - 高校通知
+    - 校园信息
+
+# === Palette ===
+palette:
+  preset: "blue"
+  primary: null
+  secondary: null
+  accent: null

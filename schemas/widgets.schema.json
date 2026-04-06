@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["modules", "widgets"],
+  "properties": {
+    "modules": {
+      "type": "object",
+      "properties": {
+        "dashboard": { "type": "boolean" },
+        "right_sidebar": { "type": "boolean" },
+        "search": { "type": "boolean" },
+        "view_counts": { "type": "boolean" },
+        "rss_entry": { "type": "boolean" },
+        "pwa_install": { "type": "boolean" },
+        "stats_chart": { "type": "boolean" },
+        "footer_branding": { "type": "boolean" },
+        "update_health": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "widgets": {
+      "type": "object",
+      "properties": {
+        "calendar": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "title": { "type": "string" },
+            "default_expanded": { "type": "boolean" }
+          }
+        },
+        "search": {
+          "type": "object",
+          "properties": {
+            "placeholder": { "type": "string" },
+            "show_hit_count": { "type": "boolean" }
+          }
+        },
+        "dashboard": {
+          "type": "object",
+          "properties": {
+            "title": { "type": "string" },
+            "visible_cards": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "ai_summary": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "title": { "type": "string" },
+            "empty_text": { "type": "string" },
+            "default_expanded": { "type": "boolean" }
+          }
+        },
+        "time_filter": {
+          "type": "object",
+          "properties": {
+            "default_timed_only": { "type": "boolean" },
+            "default_hide_expired": { "type": "boolean" }
+          }
+        },
+        "tag_stats": {
+          "type": "object",
+          "properties": {
+            "max_display": { "type": "integer", "minimum": 1 },
+            "default_expanded_count": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "view_counts": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "label": { "type": "string" }
+          }
+        },
+        "rss_entry": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "label": { "type": "string" }
+          }
+        },
+        "pwa_install": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "label": { "type": "string" },
+            "prompt_text": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

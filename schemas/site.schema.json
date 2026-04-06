@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["site_name", "site_short_name", "site_description", "site_url", "organization_name", "organization_unit_label", "palette"],
+  "properties": {
+    "site_name": { "type": "string", "minLength": 1 },
+    "site_short_name": { "type": "string", "minLength": 1 },
+    "site_description": { "type": "string" },
+    "site_url": { "type": "string", "format": "uri" },
+    "default_locale": { "type": "string", "default": "zh-CN" },
+    "organization_name": { "type": "string", "minLength": 1 },
+    "organization_type": { "type": "string", "enum": ["university", "college", "institute"], "default": "university" },
+    "organization_unit_label": { "type": "string", "minLength": 1 },
+    "logo_light": { "type": "string", "default": "/img/logo-light.svg" },
+    "logo_dark": { "type": "string", "default": "/img/logo-dark.svg" },
+    "favicon": { "type": "string", "default": "/img/logo-light.svg" },
+    "default_cover": { "type": "string", "default": "/img/default-cover.svg" },
+    "footer": {
+      "type": "object",
+      "properties": {
+        "copyright": { "type": "string" },
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label", "url"],
+            "properties": {
+              "label": { "type": "string" },
+              "url": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "seo": {
+      "type": "object",
+      "properties": {
+        "title_template": { "type": "string", "default": "{page} - {site_name}" },
+        "default_keywords": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "palette": {
+      "type": "object",
+      "required": ["preset"],
+      "properties": {
+        "preset": { "type": "string", "enum": ["red", "blue", "green", "amber", "custom"] },
+        "primary": { "type": ["string", "null"] },
+        "secondary": { "type": ["string", "null"] },
+        "accent": { "type": ["string", "null"] }
+      }
+    }
+  },
+  "additionalProperties": false
+}

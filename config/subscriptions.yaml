@@ -1,0 +1,36 @@
+# ─── EDU-PUBLISH Demo Subscriptions ───
+# Replace these with your university's actual departments/schools.
+
+schools:
+  - slug: info-engineering
+    name: 信息工程学院
+    short_name: 信工
+    order: 1
+    icon: /img/unit-icon-info-engineering.svg
+    subscriptions:
+      - title: 学院通知
+        enabled: true
+        order: 1
+        icon: /img/unit-icon-info-engineering.svg
+
+  - slug: literature
+    name: 文学院
+    short_name: 文学
+    order: 2
+    icon: /img/unit-icon-literature.svg
+    subscriptions:
+      - title: 学院通知
+        enabled: true
+        order: 1
+        icon: /img/unit-icon-literature.svg
+
+  - slug: student-affairs
+    name: 学生事务中心
+    short_name: 学工
+    order: 3
+    icon: /img/unit-icon-student-affairs.svg
+    subscriptions:
+      - title: 中心公告
+        enabled: true
+        order: 1
+        icon: /img/unit-icon-student-affairs.svg

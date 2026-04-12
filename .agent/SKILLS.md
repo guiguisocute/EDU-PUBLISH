@@ -13,14 +13,14 @@
 
 ## 必装 skill 列表
 
-- `skills/daily-reconcile`
-- `skills/incremental-process`
-- `skills/map-source`
-- `skills/merge-supplement`
-- `skills/parse-and-create-cards`
-- `skills/validate-and-push`
-- `skills/write-conclusion`
-- `skills/write-worklog`
+- `skills/edup-reconcile`
+- `skills/edup-incremental-process`
+- `skills/edup-map-source`
+- `skills/edup-merge-supplement`
+- `skills/edup-parse-and-create-cards`
+- `skills/edup-validate-and-push`
+- `skills/edup-write-conclusion`
+- `skills/edup-write-worklog`
 
 ## 安装方式
 
@@ -32,14 +32,14 @@ REF="${EDU_PUBLISH_SKILLS_REF:-main}"
 SKILLS_DIR="./skills"
 
 REQUIRED_SKILLS=(
-  daily-reconcile
-  incremental-process
-  map-source
-  merge-supplement
-  parse-and-create-cards
-  validate-and-push
-  write-conclusion
-  write-worklog
+  edup-reconcile
+  edup-incremental-process
+  edup-map-source
+  edup-merge-supplement
+  edup-parse-and-create-cards
+  edup-validate-and-push
+  edup-write-conclusion
+  edup-write-worklog
 )
 
 # 检查是否有需要安装的 skill
@@ -95,21 +95,21 @@ EDU_PUBLISH_SKILLS_REF=dev
 
 ```bash
 ls \
-  skills/daily-reconcile/SKILL.md \
-  skills/incremental-process/SKILL.md \
-  skills/map-source/SKILL.md \
-  skills/merge-supplement/SKILL.md \
-  skills/parse-and-create-cards/SKILL.md \
-  skills/validate-and-push/SKILL.md \
-  skills/write-conclusion/SKILL.md \
-  skills/write-worklog/SKILL.md
+  skills/edup-reconcile/SKILL.md \
+  skills/edup-incremental-process/SKILL.md \
+  skills/edup-map-source/SKILL.md \
+  skills/edup-merge-supplement/SKILL.md \
+  skills/edup-parse-and-create-cards/SKILL.md \
+  skills/edup-validate-and-push/SKILL.md \
+  skills/edup-write-conclusion/SKILL.md \
+  skills/edup-write-worklog/SKILL.md
 ```
 
 ## 使用约定
 
-- 增量入口与批处理节奏：优先参考 `incremental-process`
-- QQ/archive 到卡片生成：优先参考 `parse-and-create-cards`、`merge-supplement`、`map-source`
-- 每日对账与收尾：优先参考 `daily-reconcile`、`write-conclusion`、`write-worklog`
-- 推送前校验与分支动作：优先参考 `validate-and-push`
+- 增量入口与批处理节奏：优先参考 `edup-incremental-process`
+- QQ/archive 到卡片生成：优先参考 `edup-parse-and-create-cards`、`edup-merge-supplement`、`edup-map-source`
+- 每日对账与收尾：优先参考 `edup-reconcile`、`edup-write-conclusion`、`edup-write-worklog`
+- 推送前校验与分支动作：优先参考 `edup-validate-and-push`
 
 如果缺少任何一个 required skill，不要继续执行后续自动化链路。

@@ -40,14 +40,14 @@ ls config/site.yaml config/subscriptions.yaml config/widgets.yaml
 
 ```bash
 ls \
-  skills/daily-reconcile/SKILL.md \
-  skills/incremental-process/SKILL.md \
-  skills/map-source/SKILL.md \
-  skills/merge-supplement/SKILL.md \
-  skills/parse-and-create-cards/SKILL.md \
-  skills/validate-and-push/SKILL.md \
-  skills/write-conclusion/SKILL.md \
-  skills/write-worklog/SKILL.md
+  skills/edup-reconcile/SKILL.md \
+  skills/edup-incremental-process/SKILL.md \
+  skills/edup-map-source/SKILL.md \
+  skills/edup-merge-supplement/SKILL.md \
+  skills/edup-parse-and-create-cards/SKILL.md \
+  skills/edup-validate-and-push/SKILL.md \
+  skills/edup-write-conclusion/SKILL.md \
+  skills/edup-write-worklog/SKILL.md
 ```
 
 > 如果缺少任何 required skill，不要继续后续部署步骤。

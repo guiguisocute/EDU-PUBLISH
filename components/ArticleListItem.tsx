@@ -214,7 +214,7 @@ export const ArticleListItem: React.FC<ArticleListItemProps> = React.memo(({
 
         {/* Middle: Thumbnail (only if real cover exists) */}
         {hasRealCover && (
-          <div className="hidden md:block shrink-0 w-40 h-28 rounded-lg overflow-hidden bg-muted/30 self-start">
+          <div className="hidden lg:block shrink-0 w-40 h-28 rounded-lg overflow-hidden bg-muted/30 self-start">
             <img
               src={thumbnailUrl}
               alt=""

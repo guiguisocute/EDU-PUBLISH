@@ -204,7 +204,87 @@ docker compose ps
 
 ## Step 5：NapCat QQ 登录
 
-NapCat 启动后会在日志中输出 QQ 登录二维码。
+NapCat 同时提供**终端二维码**和 **WebUI 网页登录**两条路径。
+
+> ⚠️ **优先使用 WebUI 方式**。你（agent）如果跑在 IDE、桌面 GUI、Web 聊天界面或任何不能正确渲染 Unicode 块字符的终端里，`docker logs` 打出的二维码会变成一片乱码，用户没法扫。WebUI 方式把二维码渲染成浏览器里的图片，适合所有环境。
+
+### 方式 A — WebUI 网页登录（推荐，适合所有 agent 环境）
+
+NapCat 在容器内 6099 端口提供管理 WebUI，登录后页面里会显示可扫码的二维码图片。`docker-compose.yml` 已经把 6099 映射到宿主机，无需改动。
+
+#### 5A-1：获取 WebUI 登录 token 和 URL
+
+先尝试从启动日志里抓已经拼好的带 token 的 URL：
+
+```bash
+docker logs napcat 2>&1 | grep -oE "http://[^ ]*webui[^ ]*token=[A-Za-z0-9_\-]+" | tail -1
+```
+
+如果有输出，得到形如 `http://127.0.0.1:6099/webui?token=xxxxxxxx` 的完整地址，记录下 token 部分。
+
+如果上面命令没有输出（不同镜像版本日志格式不一致），退而求其次从配置文件里读：
+
+```bash
+docker exec napcat cat /app/napcat/config/webui.json 2>/dev/null \
+  || cat napcat/config/webui.json 2>/dev/null
+```
+
+在 JSON 里找 `token` 字段。
+
+如果配置文件也没有 token 字段（首次启动、尚未生成），使用镜像默认 token：
+
+```
+napcat
+```
+
+> NapCat-Docker 官方默认 token 就是字符串 `napcat`，首次登录后 WebUI 会强制要求改密。
+
+#### 5A-2：根据用户环境给出可访问的 URL
+
+判断用户 agent 运行环境，分三种情况处理：
+
+**情况 1 — agent 与浏览器在同一台机器（本地开发）**
+
+直接告诉用户：
+
+> 请在浏览器打开：`http://localhost:6099/webui?token=<上一步拿到的 token>`
+> 登录后在页面上找到"QQ 登录"或"扫码登录"入口，用手机 QQ 扫描网页里的二维码完成登录。首次登录会要求你设置新密码，按提示改即可。
+
+**情况 2 — 用户通过 SSH 远程连接到服务器（agent 在远端，浏览器在本地）**
+
+需要做端口转发。告诉用户：
+
+> 请在你本地电脑**另开一个终端**执行（保持该终端不关）：
+> ```bash
+> ssh -L 6099:localhost:6099 <你登服务器用的用户名>@<服务器地址>
+> ```
+> 然后在本地浏览器打开：`http://localhost:6099/webui?token=<token>`，扫码登录。
+
+如果用户用的是 VS Code Remote-SSH / Cursor Remote 等 IDE，这些工具通常会自动转发端口，可先让用户在 IDE 的「端口」面板里确认 6099 是否已经被自动 forward；没有的话手动 forward 一下，再在本地浏览器打开同样的 URL。
+
+**情况 3 — 宿主机是云服务器 / VPS，且用户希望直接公网访问**
+
+不推荐直接开 6099 到公网，登录 token 在 URL 里明文传。如果一定要这么做：
+
+1. 先登录一次并在 WebUI 中把默认 token `napcat` 改成一个强随机值
+2. 再开放云厂商安全组 / 本机防火墙的 6099 端口
+3. URL 换成 `http://<公网IP>:6099/webui?token=<新 token>`
+
+更稳妥的做法依然是走情况 2 的 SSH 端口转发。
+
+#### 5A-3：验证 QQ 登录成功
+
+扫码完成后：
+
+```bash
+docker logs napcat 2>&1 | tail -30
+```
+
+查找包含 `login success`、`登录成功`、或账号 QQ 号 / 昵称的日志行。
+
+### 方式 B — 终端二维码（仅在能正确渲染二维码的终端有效）
+
+仅当你（agent）确认当前终端可以正常渲染 Unicode 二维码（例如用户直接在本机 Terminal / iTerm2 / Windows Terminal 里运行 agent）时使用：
 
 ```bash
 docker logs --tail 100 napcat
@@ -212,16 +292,13 @@ docker logs --tail 100 napcat
 
 > ⚠️ 不要使用 `docker logs -f ... | head`，这种组合对 agent/CI 场景不稳定，容易卡住。优先使用 `--tail` 或 `--since`。
 
-**告诉用户**：
-> 请用手机 QQ 扫描上面日志中的二维码完成登录。登录成功后日志会显示账号信息。
+告诉用户用手机 QQ 扫描终端里的二维码。如果二维码看起来像是一片方块 / 乱码 / 被压扁，不要让用户硬扫，回到**方式 A** 走 WebUI。
 
 扫码成功后，确认登录状态：
 
 ```bash
 docker logs napcat 2>&1 | tail -20
 ```
-
-查找包含 `login success` 或账号信息的日志行。
 
 ---
 
@@ -576,7 +653,9 @@ schools:
 | 症状 | 排查 |
 |------|------|
 | 容器启动失败 | `docker compose logs napcat` / `docker compose logs astrbot` |
-| 二维码不出现 | `docker restart napcat` 后重新查看日志 |
+| 二维码不出现 / 终端里是乱码 | 走 Step 5 方式 A（WebUI `http://localhost:6099/webui?token=...`），不要依赖终端二维码 |
+| WebUI 打不开 / token 无效 | `docker restart napcat` 后重新从日志抓 URL；或直接用默认 token `napcat`；或检查 `napcat/config/webui.json` |
+| 远程服务器上开了 WebUI 本地访问不了 | 本地另起终端 `ssh -L 6099:localhost:6099 user@server` 做端口转发，再用 `http://localhost:6099/...` 访问 |
 | WebSocket 连不上 | 确认两个容器在同一网络：`docker network inspect astrbot_network` |
 | 端口冲突 | `ss -tlnp \| grep -E "6099\|6185"`，修改 compose 的端口映射 |
 | archive/ 无内容 | 检查挂载：`docker exec astrbot ls /AstrBot/data/archive/` |
